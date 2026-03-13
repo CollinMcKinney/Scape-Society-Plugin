@@ -1,2 +1,2 @@
-# Example
-An example greeter plugin
+# Scape Society
+Runelite plugin for Scape Society clan members
