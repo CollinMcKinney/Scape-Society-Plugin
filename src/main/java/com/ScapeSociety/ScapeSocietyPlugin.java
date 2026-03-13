@@ -5,7 +5,6 @@ import javax.inject.Inject;
 import javax.swing.*;
 
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Client;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -31,7 +30,7 @@ public class ScapeSocietyPlugin extends Plugin
 	private NavigationButton navButton;
 
 	@Override
-	protected void startUp() throws Exception
+	protected void startUp()
 	{
 		log.debug("Scape Society started!");
 		log.info("Scape Society started!");
@@ -53,15 +52,9 @@ public class ScapeSocietyPlugin extends Plugin
 	}
 
 	@Override
-	protected void shutDown() throws Exception
+	protected void shutDown()
 	{
 		clientToolbar.removeNavigation(navButton);
 		log.debug("Scape Society stopped!");
-	}
-
-	@Provides
-	ScapeSocietyConfig provideConfig(ConfigManager configManager)
-	{
-		return configManager.getConfig(ScapeSocietyConfig.class);
 	}
 }
