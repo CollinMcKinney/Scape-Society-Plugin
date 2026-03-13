@@ -45,6 +45,7 @@ public class ScapeSocietyPlugin extends Plugin
 		log.debug("Scape Society started!");
 		log.info("Scape Society started!");
 
+		panel = injector.getInstance(ScapeSocietyPanel.class);
 		panel.init();
 		panel.setPlugin(this);
 
