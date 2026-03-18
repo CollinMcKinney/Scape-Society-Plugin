@@ -1,5 +1,7 @@
 plugins {
+
 	id 'java'
+
 }
 
 repositories {
@@ -14,7 +16,7 @@ repositories {
 }
 
 def runeLiteVersion = 'latest.release'
-def pluginMainClass = 'com.ScapeSociety.ScapeSocietyLauncher'
+def pluginMainClass = 'com.Concord.ConcordLauncher'
 
 dependencies {
 	compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
@@ -22,12 +24,16 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 
+	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+	implementation 'com.google.code.gson:gson:2.10.1'
+
+
 	testImplementation 'junit:junit:4.12'
 	testImplementation group: 'net.runelite', name:'client', version: runeLiteVersion
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 }
 
-group = 'com.ScapeSociety'
+group = 'com.Concord'
 version = '1.0-SNAPSHOT'
 
 tasks.withType(JavaCompile).configureEach {

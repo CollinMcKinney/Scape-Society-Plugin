@@ -1,11 +1,11 @@
-package com.ScapeSociety;
+package com.Concord;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("ScapeSociety")
-public interface ScapeSocietyConfig extends Config
+@ConfigGroup("Concord")
+public interface ConcordConfig extends Config
 {
 	@ConfigItem(
 		keyName = "greeting",

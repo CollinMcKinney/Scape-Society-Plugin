@@ -1,7 +1,6 @@
-package com.ScapeSociety;
+package com.Concord;
 
 import javax.inject.Inject;
-import javax.swing.*;
 
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.client.plugins.Plugin;
@@ -14,33 +13,33 @@ import java.awt.image.BufferedImage;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Scape Society"
+	name = "Concord"
 )
-public class ScapeSocietyPlugin extends Plugin
+public class ConcordPlugin extends Plugin
 {
 
 	@Inject
 	private ClientToolbar clientToolbar;
 
 	@Inject
-	private ScapeSocietyPanel panel;
+	private ConcordPanel panel;
 
 	private NavigationButton navButton;
 
 	@Override
 	protected void startUp()
 	{
-		log.debug("Scape Society started!");
-		log.info("Scape Society started!");
+		log.debug("Concord started!");
+		log.info("Concord started!");
 
-		panel = injector.getInstance(ScapeSocietyPanel.class);
+		panel = injector.getInstance(ConcordPanel.class);
 		panel.init();
 		panel.setPlugin(this);
 
 		final BufferedImage icon = ImageUtil.loadImageResource(getClass(), "/icon.png");
 
 		navButton = NavigationButton.builder()
-				.tooltip("Scape Society")
+				.tooltip("Concord")
 				.priority(1)
 				.icon(icon)
 				.panel(panel)
@@ -53,6 +52,6 @@ public class ScapeSocietyPlugin extends Plugin
 	protected void shutDown()
 	{
 		clientToolbar.removeNavigation(navButton);
-		log.debug("Scape Society stopped!");
+		log.debug("Concord stopped!");
 	}
 }

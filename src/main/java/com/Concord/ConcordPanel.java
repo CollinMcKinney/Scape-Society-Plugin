@@ -1,4 +1,4 @@
-package com.ScapeSociety;
+package com.Concord;
 
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.util.ImageUtil;
@@ -8,15 +8,15 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class ScapeSocietyPanel extends PluginPanel
+public class ConcordPanel extends PluginPanel
 {
     // Reference to main plugin
-    private ScapeSocietyPlugin plugin;
+    private ConcordPlugin plugin;
 
     private static final Color CLAN_COLOR_PRIMARY = new Color(117, 170, 0);
     private static final Color CLAN_COLOR_SECONDARY = new Color(64, 64, 64);
 
-    public void setPlugin(ScapeSocietyPlugin plugin)
+    public void setPlugin(ConcordPlugin plugin)
     {
         this.plugin = plugin;
     }
@@ -67,7 +67,7 @@ public class ScapeSocietyPanel extends PluginPanel
         header.add(imageLabel, BorderLayout.CENTER);
 
         // --- OPTIONAL TITLE ---
-        // JLabel title = new JLabel("Scape Society");
+        // JLabel title = new JLabel("Concord");
         // title.setFont(FontManager.getRunescapeFont());
         // title.setForeground(CLAN_COLOR_PRIMARY);
         // title.setHorizontalAlignment(SwingConstants.CENTER);
