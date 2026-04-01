@@ -1,29 +1,91 @@
-package com.Concord;
+package com.concord.connectivity;
 
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import com.concord.ConcordConfig;
+import com.concord.ConcordPlugin;
+import net.runelite.client.config.ConfigManager;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ConcordWebSocket implements WebSocket.Listener
+public class WssClient implements WebSocket.Listener
 {
     private static final long RECONNECT_DELAY_SECONDS = 5L;
 
     private final ConcordPlugin plugin;
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    private final ConfigManager configManager;
+    private final HttpClient httpClient;
+    private final HttpClient insecureHttpClient;
     private final ScheduledExecutorService reconnectExecutor = Executors.newSingleThreadScheduledExecutor();
+    private volatile URI serverUri;
     private volatile WebSocket webSocket;
     private volatile boolean reconnectScheduled;
     private volatile boolean shuttingDown;
 
-    public ConcordWebSocket(ConcordPlugin plugin)
+    public WssClient(ConcordPlugin plugin, ConfigManager configManager)
     {
         this.plugin = plugin;
+        this.configManager = configManager;
+        this.httpClient = HttpClient.newHttpClient();
+        this.insecureHttpClient = createInsecureHttpClient();
+    }
+
+    /**
+     * Creates an HttpClient that trusts ALL certificates.
+     * WARNING: This is ONLY for development with self-signed certificates on localhost.
+     * NEVER use this in production or with real user data.
+     */
+    private static HttpClient createInsecureHttpClient()
+    {
+        try
+        {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager()
+                {
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers()
+                    {
+                        return new X509Certificate[0];
+                    }
+
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType)
+                    {
+                        // Trust all
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType)
+                    {
+                        // Trust all
+                    }
+                }
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+            // Create an SSL context that uses our trust manager
+            return HttpClient.newBuilder()
+                    .sslContext(sslContext)
+                    .build();
+        }
+        catch (Exception e)
+        {
+            log.warn("Failed to create insecure HTTP client, falling back to default", e);
+            return HttpClient.newHttpClient();
+        }
     }
 
     public void connect()
@@ -33,14 +95,35 @@ public class ConcordWebSocket implements WebSocket.Listener
             return;
         }
 
+        if (serverUri == null)
+        {
+            log.warn("Skipping Concord connection attempt because server URL is not configured");
+            plugin.onSocketDisconnected();
+            return;
+        }
+
         if (!plugin.isConnectionReady())
         {
             log.debug("Skipping Concord connection attempt until RuneLite player name is available");
             return;
         }
 
-        httpClient.newWebSocketBuilder()
-                .buildAsync(URI.create("ws://localhost:8080"), this)
+        // Use insecure client only for localhost connections when trustSelfSigned is enabled
+        boolean isLocalhost = serverUri.getHost().equalsIgnoreCase("localhost") ||
+                              serverUri.getHost().equals("127.0.0.1") ||
+                              serverUri.getHost().equals("[::1]");
+        ConcordConfig config = configManager.getConfig(ConcordConfig.class);
+        boolean useInsecure = isLocalhost && config.trustSelfSigned();
+
+        HttpClient clientToUse = useInsecure ? insecureHttpClient : httpClient;
+
+        if (useInsecure)
+        {
+            log.warn("Using INSECURE SSL context for localhost connection. DO NOT enable trustSelfSigned for production!");
+        }
+
+        clientToUse.newWebSocketBuilder()
+                .buildAsync(serverUri, this)
                 .thenAccept(ws -> {
                     this.webSocket = ws;
                     this.reconnectScheduled = false;
@@ -49,6 +132,7 @@ public class ConcordWebSocket implements WebSocket.Listener
                 })
                 .exceptionally(ex -> {
                     log.warn("Failed to connect to Concord server: {}", ex.getMessage());
+                    plugin.onSocketDisconnected();
                     scheduleReconnect();
                     return null;
                 });
@@ -64,6 +148,25 @@ public class ConcordWebSocket implements WebSocket.Listener
 
         webSocket.sendText(packet.toJson(), true);
         log.debug("Packet was sent!");
+    }
+
+    public void setServerUrl(String serverUrl)
+    {
+        if (serverUrl == null || serverUrl.trim().isEmpty())
+        {
+            this.serverUri = null;
+            return;
+        }
+
+        try
+        {
+            this.serverUri = URI.create(serverUrl.trim());
+        }
+        catch (IllegalArgumentException ex)
+        {
+            log.warn("Invalid Concord server URL '{}': {}", serverUrl, ex.getMessage());
+            this.serverUri = null;
+        }
     }
 
     @Override

@@ -16,7 +16,7 @@ repositories {
 }
 
 def runeLiteVersion = 'latest.release'
-def pluginMainClass = 'com.Concord.ConcordLauncher'
+def pluginMainClass = 'com.concord.ConcordLauncher'
 
 dependencies {
 	compileOnly group: 'net.runelite', name:'client', version: runeLiteVersion
@@ -33,7 +33,7 @@ dependencies {
 	testImplementation group: 'net.runelite', name:'jshell', version: runeLiteVersion
 }
 
-group = 'com.Concord'
+group = 'com.concord'
 version = '1.0-SNAPSHOT'
 
 tasks.withType(JavaCompile).configureEach {

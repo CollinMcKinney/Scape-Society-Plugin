@@ -1,5 +1,6 @@
-package com.Concord;
+package com.concord;
 
+import com.concord.ConcordPlugin;
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 

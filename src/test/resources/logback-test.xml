@@ -52,5 +52,5 @@
 		<appender-ref ref="STDOUT"/>
 		<appender-ref ref="FILE"/>
 	</root>
-	<logger name="com.Concord" level="DEBUG" />
+	<logger name="com.concord" level="DEBUG" />
 </configuration>

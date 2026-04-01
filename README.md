@@ -1,4 +1,4 @@
-# Scape Society
-Runelite plugin for Scape Society clan members
+# Concord
+Runelite plugin for connecting to Concord
 
-![Image description](src/main/resources/icon_256x256.png)
+![Image description](src/main/resources/concord.png)

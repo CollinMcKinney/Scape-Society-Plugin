@@ -1,4 +1,4 @@
-package com.Concord;
+package com.concord.ui;
 
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.util.ImageUtil;
@@ -13,21 +13,22 @@ import java.net.URI;
 
 public class ConcordPanel extends PluginPanel
 {
+    private static final int LOGO_SIZE = 128;
     private static final int DISCORD_BUTTON_MAX_WIDTH = 140;
     private static final int DISCORD_BUTTON_MAX_HEIGHT = 48;
 
-    private static final Color CLAN_COLOR_PRIMARY = new Color(117, 170, 0);
-    private static final Color CLAN_COLOR_SECONDARY = new Color(64, 64, 64);
-    private static final Color PANEL_BACKGROUND = new Color(20, 20, 20);
+    private static final Color FOREGROUND_COLOR = new Color(34, 194, 93);
+    private static final Color BACKGROUND_COLOR = new Color(20, 20, 20);
 
     private JButton joinDiscordButton;
     private String discordInviteUrl = "";
+    private JLabel connectionStatusLabel;
 
     public void init()
     {
         setLayout(new BorderLayout());
-        setBackground(PANEL_BACKGROUND);
-        setForeground(CLAN_COLOR_PRIMARY);
+        setBackground(BACKGROUND_COLOR);
+        setForeground(FOREGROUND_COLOR);
         setBorder(new EmptyBorder(20, 16, 20, 16));
 
         buildPanel();
@@ -38,21 +39,26 @@ public class ConcordPanel extends PluginPanel
         removeAll();
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setBackground(PANEL_BACKGROUND);
+        contentPanel.setBackground(BACKGROUND_COLOR);
         contentPanel.setBorder(new EmptyBorder(8, 8, 8, 8));
 
-        BufferedImage logoImage = ImageUtil.loadImageResource(getClass(), "/icon_128x128.png");
-        JLabel logoLabel = new JLabel(new ImageIcon(logoImage));
+        BufferedImage logoImage = ImageUtil.loadImageResource(getClass(), "/concord.png");
+        Image scaledLogoImage = scaleImageToSize(logoImage, LOGO_SIZE, LOGO_SIZE);
+        JLabel logoLabel = new JLabel(new ImageIcon(scaledLogoImage));
         logoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel titleLabel = new JLabel("Scape Society");
+        JLabel titleLabel = new JLabel("Concord");
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setForeground(CLAN_COLOR_PRIMARY);
+        titleLabel.setForeground(FOREGROUND_COLOR);
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20f));
 
-        JLabel subtitleLabel = new JLabel("Join the clan Discord community");
+        JLabel subtitleLabel = new JLabel("Discord chat bridge");
         subtitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         subtitleLabel.setForeground(new Color(205, 214, 190));
+
+        connectionStatusLabel = new JLabel("Status: Configure in settings");
+        connectionStatusLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        connectionStatusLabel.setForeground(new Color(200, 90, 90));
 
         BufferedImage discordButtonImage = ImageUtil.loadImageResource(getClass(), "/join_our_discord.png");
         Image scaledDiscordButtonImage = scaleImageToFit(
@@ -93,6 +99,8 @@ public class ConcordPanel extends PluginPanel
         contentPanel.add(titleLabel);
         contentPanel.add(Box.createVerticalStrut(6));
         contentPanel.add(subtitleLabel);
+        contentPanel.add(Box.createVerticalStrut(14));
+        contentPanel.add(connectionStatusLabel);
         contentPanel.add(Box.createVerticalStrut(18));
         contentPanel.add(joinDiscordButton);
         contentPanel.add(Box.createVerticalGlue());
@@ -137,6 +145,24 @@ public class ConcordPanel extends PluginPanel
         return image.getScaledInstance(targetWidth, targetHeight, Image.SCALE_SMOOTH);
     }
 
+    private Image scaleImageToSize(BufferedImage image, int width, int height)
+    {
+        if (image == null)
+        {
+            return null;
+        }
+
+        BufferedImage scaled = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = scaled.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        graphics.drawImage(image, 0, 0, width, height, null);
+        graphics.dispose();
+
+        return scaled;
+    }
+
     private Image darkenImage(Image image, float factor)
     {
         if (image == null)
@@ -173,6 +199,15 @@ public class ConcordPanel extends PluginPanel
         return darkenedImage;
     }
 
+    public void setConnectionStatus(String text, Color color)
+    {
+        if (connectionStatusLabel != null)
+        {
+            connectionStatusLabel.setText(text);
+            connectionStatusLabel.setForeground(color);
+        }
+    }
+
     public void setDiscordInviteUrl(String discordInviteUrl)
     {
         this.discordInviteUrl = discordInviteUrl == null ? "" : discordInviteUrl.trim();
@@ -183,5 +218,10 @@ public class ConcordPanel extends PluginPanel
                     ? "Discord invite is not configured yet"
                     : "Join Our Discord");
         }
+    }
+
+    public void showMessage(String message)
+    {
+        JOptionPane.showMessageDialog(this, message);
     }
 }

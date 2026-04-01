@@ -1,4 +1,4 @@
-package com.Concord;
+package com.concord.connectivity;
 
 import com.google.gson.Gson;
 import java.util.HashMap;
