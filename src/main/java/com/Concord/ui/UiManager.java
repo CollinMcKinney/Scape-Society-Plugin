@@ -41,7 +41,8 @@ public final class UiManager
 	{
 		if (panel != null)
 		{
-			panel.setDiscordInviteUrl(discordInviteUrl);
+			SwingUtilities.invokeLater(() ->
+					panel.setDiscordInviteUrl(discordInviteUrl));
 		}
 	}
 
